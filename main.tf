@@ -1,39 +1,34 @@
-provider "local" {
-
-}
-
 provider "aws" {
   region = "ap-northeast-2"
 }
 
-resource "local_file" "foo" {
-  filename = "${path.module}/foo.txt"
-  content  = "Hello World!"
+data "aws_ami" "ami" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-2.0.*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["amazon"]
 }
 
-data "local_file" "bar" {
-  filename = "${path.module}/bar.txt"
-}
-
-output "file_bar" {
-  value = data.local_file.bar
-}
-
-resource "aws_vpc" "foo" {
-  cidr_block = "10.0.0.0/16"
-
+resource "aws_default_vpc" "default_vpc" {
   tags = {
-    "Name" = "This is test vpc"
+    Name = "Default VPC"
   }
 }
 
-output "vpc_foo" {
-  value = aws_vpc.foo
-}
+resource "aws_instance" "ec2" {
+  ami           = data.aws_ami.ami.image_id
+  instance_type = "t2.micro"
 
-data "aws_vpcs" "foo" {
-}
-
-output "vpcs_foo" {
-  value = data.aws_vpcs.foo
+  tags = {
+    Name = "HelloWorld"
+  }
 }
