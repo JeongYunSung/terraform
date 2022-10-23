@@ -1,34 +1,37 @@
-provider "aws" {
+locals {
+  name   = "jys-vpc"
   region = "ap-northeast-2"
 }
 
-data "aws_ami" "ami" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-2.0.*-x86_64-gp2"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  owners = ["amazon"]
+variable "vpc_name" {
+  type        = string
+  default     = "jys-vpc"
+  description = "생성되는 VPC의 이름"
 }
 
-resource "aws_default_vpc" "default_vpc" {
+provider "aws" {
+  region = local.region
+}
+
+module "vpc" {
+  source = "terraform-aws-modules/vpc/aws"
+
+  name = local.name
+  cidr = "10.0.0.0/26"
+
+  azs             = ["ap-northeast-2a", "ap-northeast-2c"]
+  private_subnets = ["10.0.0.0/28", "10.0.0.32/28"]
+  public_subnets  = ["10.0.0.16/28", "10.0.0.48/28"]
+
+  private_subnet_names = ["jys-vpc-private-subnet-01", "jys-vpc-private-subnet-02"]
+  public_subnet_names  = ["jys-vpc-public-subnet-01", "jys-vpc-public-subnet-02"]
+
   tags = {
-    Name = "Default VPC"
+    Terraform   = "true"
+    Environment = "dev"
   }
 }
 
-resource "aws_instance" "ec2" {
-  ami           = data.aws_ami.ami.image_id
-  instance_type = "t2.micro"
-
-  tags = {
-    Name = "HelloWorld"
-  }
+output "vpc_id" {
+  value = module.vpc.vpc_id
 }
