@@ -1,5 +1,5 @@
 provider "local" {
-  
+
 }
 
 provider "aws" {
@@ -7,33 +7,33 @@ provider "aws" {
 }
 
 resource "local_file" "foo" {
-    filename = "${path.module}/foo.txt"
-    content  = "Hello World!"
+  filename = "${path.module}/foo.txt"
+  content  = "Hello World!"
 }
 
 data "local_file" "bar" {
-    filename = "${path.module}/bar.txt"
+  filename = "${path.module}/bar.txt"
 }
 
 output "file_bar" {
-    value = "${data.local_file.bar}"
+  value = data.local_file.bar
 }
 
 resource "aws_vpc" "foo" {
-    cidr_block = "10.0.0.0/16"
+  cidr_block = "10.0.0.0/16"
 
-    tags = {
-        "Name" = "This is test vpc"
-    }
+  tags = {
+    "Name" = "This is test vpc"
+  }
 }
 
 output "vpc_foo" {
-    value = "${aws_vpc.foo}"
+  value = aws_vpc.foo
 }
 
 data "aws_vpcs" "foo" {
 }
 
 output "vpcs_foo" {
-    value = "${data.aws_vpcs.foo}"
+  value = data.aws_vpcs.foo
 }
