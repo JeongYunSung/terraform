@@ -31,6 +31,16 @@ module "vpc" {
   }
 }
 
+module "aws" {
+  source = "./aws"
+
+  name = "jys-aws"
+}
+
+output "id" {
+  value = module.aws.id
+}
+
 output "vpc_id" {
   value = module.vpc.vpc_id
 }
